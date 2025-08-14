@@ -1,13 +1,13 @@
 import User from "../models/user.model.js";
-
+import bcrypt from "bcryptjs";
 
 // Create a new user
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, photo } = req.body;
+    const { name, email, password, photo } = req.body;
 
     // Validate inputs
-    if (!name || !email ) {
+    if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
@@ -17,11 +17,16 @@ export const registerUser = async (req, res) => {
       return res.status(409).json({ success: false, message: "User already exists" });
     }
 
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Save new user
     const newUser = new User({
       name,
       email,
       photo,
+      password: hashedPassword,
     });
 
     await newUser.save();
@@ -29,7 +34,13 @@ export const registerUser = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
-      user: newUser,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        photo: newUser.photo,
+        createdAt: newUser.createdAt,
+      },
     });
   } catch (error) {
     console.error("Register Error:", error);
@@ -37,10 +48,10 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// Get all users (optional)
+// Get all users
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().sort({ createdAt: -1 });
+    const users = await User.find().sort({ createdAt: -1 }).select("-password"); // exclude password
     res.status(200).json({ success: true, users });
   } catch (error) {
     console.error("Get Users Error:", error);
