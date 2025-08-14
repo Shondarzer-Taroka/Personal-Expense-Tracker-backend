@@ -1,33 +1,12 @@
-// src/models/user.model.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
-      minlength: [2, "Name must be at least 2 characters long"],
-    },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      match: [/.+\@.+\..+/, "Please enter a valid email address"],
-    },
-    photo: {
-      type: String,
-      required: [true, "Profile photo URL is required"],
-    },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, trim: true },
+    photo: { type: String, },
   },
   { timestamps: true }
 );
 
-// Create a compound index for faster email lookups
-userSchema.index({ email: 1 });
-
-const User = mongoose.model("User", userSchema);
-
-export default User;
+export default mongoose.model("User", userSchema);

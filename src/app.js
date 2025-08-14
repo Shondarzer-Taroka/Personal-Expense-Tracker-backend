@@ -3,9 +3,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import expenseRoutes from './routes/expenseRoutes.js';
 import { errorHandler, notFound } from './utils/errorHandler.js';
-
+import userRoutes from "./routes/user.route.js";
+import connectDB from './config/db.js';
 
 dotenv.config();
+
+connectDB();
 
 const app = express();
 
