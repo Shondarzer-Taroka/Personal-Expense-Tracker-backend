@@ -45,6 +45,8 @@ export const registerUser = async (req, res) => {
   }
 };
 
+
+
 // Login user and set HTTP-only cookie
 export const loginUser = async (req, res) => {
   try {
@@ -68,10 +70,10 @@ export const loginUser = async (req, res) => {
     );
 
     // Set token in HTTP-only cookie
-    res.cookie("token", token, {
+    res.cookie("tokenExpense", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // only send over HTTPS in prod
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -93,6 +95,31 @@ export const loginUser = async (req, res) => {
 
 // Logout user (clear cookie)
 export const logoutUser = (req, res) => {
-  res.clearCookie("token", { httpOnly: true, sameSite: "strict" });
+  res.clearCookie("tokenExpense", { httpOnly: true, sameSite: "lax" });
   res.status(200).json({ success: true, message: "Logged out successfully" });
+};
+
+
+
+
+
+
+
+export const getMe = async (req, res) => {
+  try {
+    console.log(req.cookies);
+    
+    const token = req.cookies.tokenExpense;
+    if (!token) return res.status(401).json({ success: false, message: "Not authenticated" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret");
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    console.error("Get Me Error:", err);
+    res.status(401).json({ success: false, message: "Invalid token" });
+  }
 };
