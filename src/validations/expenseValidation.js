@@ -1,3 +1,4 @@
+// // src/validations/ expenseValidation.js
 export const validateExpense = (expense) => {
   const errors = {};
 
