@@ -15,13 +15,17 @@ const app = express();
 
 
 app.use(cors({
-  origin: ["http://localhost:3000",'http://localhost:3001'],
+  origin: ["http://localhost:3000",'http://localhost:3001','https://expenses-six-iota.vercel.app'],
   credentials: true
 }));
 
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running' });
+});
 
 app.use('/api/expenses', expenseRoutes);
 app.use("/api/users", userRoutes);

@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Register user (with password hashing)
+// Register user with password hashing
 export const registerUser = async (req, res) => {
   try {
     const { name, email, photo, password } = req.body;
@@ -71,10 +71,14 @@ export const loginUser = async (req, res) => {
 
     // Set token in HTTP-only cookie
     res.cookie("tokenExpense", token, {
+      // httpOnly: true,
+      // secure: process.env.NODE_ENV === "production", // only send over HTTPS in prod
+      // sameSite: "none",
+      // maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // only send over HTTPS in prod
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
@@ -95,7 +99,7 @@ export const loginUser = async (req, res) => {
 
 // Logout user (clear cookie)
 export const logoutUser = (req, res) => {
-  res.clearCookie("tokenExpense", { httpOnly: true, sameSite: "lax" });
+  res.clearCookie("tokenExpense", { httpOnly: true, sameSite: "lax",secure: false });
   res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
@@ -108,7 +112,7 @@ export const logoutUser = (req, res) => {
 export const getMe = async (req, res) => {
   try {
     console.log(req.cookies);
-    
+
     const token = req.cookies.tokenExpense;
     if (!token) return res.status(401).json({ success: false, message: "Not authenticated" });
 
